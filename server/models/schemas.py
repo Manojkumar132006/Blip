@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import Field,BaseModel
 import datetime
 
-class user:
+class userSchema(BaseModel):
     id:str=Field(default_factory=uuid.uuid4, alias="_id")
     name: str = Field()
     email: str = Field()
@@ -17,7 +17,7 @@ class user:
     routines: list[str] = Field(default_factory=list)  # List of routine IDs the
     created_at: str = Field(default_factory=lambda: datetime.datetime.now().isoformat())
 
-class role:
+class roleSchema(BaseModel):
     id: str = Field(default_factory=uuid.uuid4, alias="_id")
     name: str = Field()
     description: Optional[str] = Field(default=None)
@@ -25,7 +25,7 @@ class role:
     created_at: str = Field(default_factory=lambda: datetime.datetime.now().isoformat())
     cluster: str = Field()  # Reference to the cluster this role belongs to
 
-class routine(BaseModel):
+class routineSchema(BaseModel):
     id: str = Field(default_factory=uuid.uuid4, alias="_id")
     name: str = Field()
     description: Optional[str] = Field(default=None)
@@ -37,7 +37,7 @@ class routine(BaseModel):
     group: Optional[str] = Field(default=None)  # Reference to the group this routine belongs to    
     created_at: str = Field(default_factory=lambda: datetime.datetime.now().isoformat())
 
-class spark(BaseModel):
+class sparkSchema(BaseModel):
     id: str = Field(default_factory=uuid.uuid4,alias="_id")
     name: str = Field()
     description: Optional[str] = Field(default=None)
@@ -53,7 +53,7 @@ class spark(BaseModel):
     cluster: str = Field()  # Reference to the cluster this spark belongs to
     group: Optional[str] = Field(default=None)  # Reference to the group this spark belongs to
 
-class group(BaseModel):
+class groupSchema(BaseModel):
     id: str = Field(default_factory=uuid.uuid4, alias="_id")
     name: str = Field()
     description: Optional[str] = Field(default=None)
@@ -68,14 +68,14 @@ class group(BaseModel):
     created_at: str = Field(default_factory=lambda: datetime.datetime.now().isoformat())
     cluster: str = Field()  # Reference to the cluster this group belongs to
 
-class cluster(BaseModel):
+class clusterSchema(BaseModel):
     id:str=Field(default_factory=uuid.uuid4,alias="_id")
     name: str=Field()
     description: Optional[str] = Field(default=None)
     admin: str=Field(default_factory=uuid.uuid4)
     moderators: list[str] = Field(default_factory=list)
     members: list[str] = Field(default_factory=list)
-    groups: list[group] = Field(default_factory=group)
+    groups: list[groupSchema] = Field(default_factory=list)  # List of groups in the cluster
     tags: list[str] = Field(default_factory=list)
     roles: list[str] = Field(default_factory=list)
     sparks: list[str] = Field(default_factory=list)
