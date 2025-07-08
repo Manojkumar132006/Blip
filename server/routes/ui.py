@@ -15,8 +15,8 @@ async def ui():
             "left":  16.0,
             "right":  16.0
         },
-        "width":  1000,
-        "height":  1000,
+        "width":  402,
+        "height":  800,
         "decoration":  {
             "gradient":  {
                 "type":  "linearGradient",
@@ -53,7 +53,7 @@ async def ui():
                 },
                 {
                     "type":  "sizedBox",
-                    "height":  180
+                    "height":  150
                 },
                 {
                     "type":  "text",
@@ -125,6 +125,7 @@ async def ui():
         }
     }
 }
+
 
 
 

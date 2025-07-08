@@ -77,7 +77,7 @@ class clusterSchema(BaseModel):
     members: list[str] = Field(default_factory=list)
     groups: list[groupSchema] = Field(default_factory=list)  # List of groups in the cluster
     tags: list[str] = Field(default_factory=list)
-    roles: list[str] = Field(default_factory=list)
-    sparks: list[str] = Field(default_factory=list)
-    routines: list[str] = Field(default_factory=list)
+    roles: list[roleSchema] = Field(default_factory=list)
+    sparks: list[sparkSchema] = Field(default_factory=list)
+    routines: list[routineSchema] = Field(default_factory=list)
     created_at: str = Field(default_factory=lambda: datetime.datetime.now().isoformat())
