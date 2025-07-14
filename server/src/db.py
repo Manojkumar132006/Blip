@@ -9,9 +9,9 @@ class MongoCluster:
     def __init__(self):
         self.client = MongoClient(uri, server_api=ServerApi('1'))
         self.db = self.client['db0']
-        self.users = self.db['users']
-        self.clusters = self.db['clusters']
-        self.groups = self.db['groups']
-        self.roles = self.db['roles']
-        self.routines = self.db['routines']
-        self.sparks = self.db['sparks']
+        self.db.users = self.db['users']
+        self.db.clusters = self.db['clusters']
+        self.db.groups = self.db['groups']
+        self.db.roles = self.db['roles']
+        self.db.routines = self.db['routines']
+        self.db.sparks = self.db['sparks']

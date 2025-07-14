@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.ui import router as ui_router
-from db import MongoCluster
+from .db import MongoCluster
 
 app = FastAPI()
 app.add_middleware(
