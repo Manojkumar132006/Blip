@@ -52,9 +52,8 @@ class sparkSchema(BaseModel):
 class groupSchema(BaseModel):
     name: str = Field()
     description: Optional[str] = Field(default=None)
-    admin: str = Field(default_factory=uuid.uuid4)
+    admin: str = Field()
     members: list[str] = Field(default_factory=list)
-    access_role: str=Field(default_factory=None)
     moderators: list[str] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
     roles: list[str] = Field(default_factory=list)
