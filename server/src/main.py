@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.ui import router as ui_router
 from .db import MongoCluster
+from .sockets.main import socket_app
 
 app = FastAPI()
 app.add_middleware(
@@ -12,6 +13,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.mount("/ws", socket_app)
 
 @app.on_event("startup")
 async def startup_event():
