@@ -16,7 +16,8 @@ class ClusterManager(MongoCluster):
         """
         new_cluster_data = clusterSchema(**cluster_data)
         new_cluster = self.clusters.insert_one(dict(new_cluster_data))
-        return self.clusters.find_one({"_id":new_cluster.inserted_id})
+        self._id = str(new_cluster.inserted_id)
+        self.instance= self.clusters.find_one({"_id":new_cluster.inserted_id})
 
     def load(self):
         if self._id is None and self.instance is None:
