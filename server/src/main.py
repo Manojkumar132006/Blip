@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes.ui import router as ui_router
+from api.v1.ui import router as ui_router
 from .db import MongoCluster
 from .sockets.main import socket_app
 
