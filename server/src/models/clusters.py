@@ -1,32 +1,55 @@
-from .schemas import clusterSchema,roleSchema,routineSchema,sparkSchema,groupSchema
-from bson.objectid import ObjectId
-import functools
-from ..db import MongoCluster
+from .schemas import clusterSchema
+from ..db import db
+from bson import ObjectId
 
-class ClusterManager(MongoCluster):
-    def __init__(self,id:str=None, instance:clusterSchema=None):
-        super().__init__()
-        self.instance = instance
-        self._id = id if id else None
-    
 
-    def add(self,cluster_data:clusterSchema) -> clusterSchema:
-        """
-        Create a new cluster in the database.
-        """
-        new_cluster_data = clusterSchema(**cluster_data)
-        new_cluster = self.clusters.insert_one(dict(new_cluster_data))
-        self._id = str(new_cluster.inserted_id)
-        self.instance= self.clusters.find_one({"_id":new_cluster.inserted_id})
+class ClusterManager():
+    def get_by_id(self, id: str):
+        # Check if provided id is of right Format
+        try:
+            ID = ObjectId(id)
+        except Exception:
+            raise ValueError(f"Invalid MongoDB Object-ID {id}")
+
+        # Get document from Database
+        cluster = db['clusters'].find_one({"_id": ID})
+
+        # If no document Exist in Dictionary
+        if not cluster:
+            raise ValueError(f"Document with given ID doesnt exist")
+
+        # Add attributes from document
+        for key in cluster:
+            setattr(self, key, cluster[key])
+
+    def add_by_instance(self, instance: dict):
+        # Validate Instance
+        clusterSchema(**instance)
+
+        # Add instance to DataBase
+        result = db['clusters'].insert_one(instance)
+
+        # Add attributes form instance
+        self._id = result.inserted_id
+        for key in instance:
+            setattr(self, key, instance[key])
 
     def load(self):
-        if self._id is None and self.instance is None:
-            return self.clusters.find()
-        elif self._id is not None:
-            self.instance = self.clusters.find_one({"_id": self._id})
-            if not self.instance:
-                raise ValueError(f"Cluster with id {self._id} not found.")
-            else:
-                self.instance = clusterSchema(**self.instance)
-        elif self._id is None and self.instance is not None:
-            self.instance = self.add(self.instance)    
+        try:
+            self._id
+        except Exception:
+            raise ValueError("Instance not Found")
+        return db['clusters'].find_one({'_id': ObjectId(self._id)})
+
+    def load_all(self):
+        return list(db['clusters'].find())
+
+    def update(self):
+        return
+
+    def delete(self):
+        try:
+            self._id
+        except Exception:
+            raise AttributeError("Instance not found")
+        db['clusters'].delete_one({'_id': ObjectId(self._id)})
