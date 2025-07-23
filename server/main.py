@@ -26,11 +26,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount API router
+# Mount API router with /api prefix
 app.include_router(api_router, prefix="/api")
 
 # Attach Socket.IO middleware
-app.mount("/", socketio.ASGIApp(sio))
+app.mount("/socket.io/", socketio.ASGIApp(sio))
 
 @app.get("/")
 def root():
