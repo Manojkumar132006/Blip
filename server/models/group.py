@@ -1,9 +1,9 @@
 """
 Group Model
 """
+import datetime
 from pydantic import BaseModel, Field
 from typing import List, Optional
-import datetime
 
 def iso_now():
     return datetime.datetime.now().isoformat()
