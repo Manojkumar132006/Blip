@@ -3,7 +3,7 @@ Sparks API - CRUD
 """
 from fastapi import APIRouter, HTTPException
 from models.spark import Spark
-from config.database import sparks as sparks_collection
+from controllers import SparkController
 from typing import List
 
 router = APIRouter()
@@ -11,9 +11,18 @@ router = APIRouter()
 @router.get("/", response_model=List[Spark])
 async def list_sparks():
     try:
-        cursor = sparks_collection.find()
-        sparks = await cursor.to_list(length=100)
+        sparks = await SparkController.list_sparks()
         return sparks
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+@router.get("/{spark_id}", response_model=Spark)
+async def get_spark(spark_id: str):
+    try:
+        spark = await SparkController.get_spark(spark_id)
+        if not spark:
+            raise HTTPException(status_code=404, detail="Spark not found")
+        return spark
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
@@ -21,8 +30,7 @@ async def list_sparks():
 async def create_spark(spark: Spark):
     try:
         spark_dict = spark.dict(by_alias=True)
-        result = await sparks_collection.insert_one(spark_dict)
-        # Emit via Socket.IO (placeholder)
-        return spark
+        created_spark = await SparkController.create_spark(spark_dict)
+        return created_spark
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create spark: {str(e)}")
