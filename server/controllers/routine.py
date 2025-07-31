@@ -44,6 +44,22 @@ class RoutineController:
             routine_data["status"] = "active"
             result = await routines_collection.insert_one(routine_data)
             routine_data["_id"] = str(result.inserted_id)
+
+            # Fetch the cluster and group associated with the routine
+            # Assuming routine_data contains cluster_id and group_id
+            from controllers.cluster import ClusterController
+            from controllers.group import GroupController
+            cluster = await ClusterController.get_cluster(routine_data["cluster"])
+            group = await GroupController.get_group(routine_data["group"])
+
+            # Generate updated calendar data
+            from services.calendar import CalendarService
+            # Generate routine calendar event
+            # Generate routine calendar event and update calendars using CalendarService
+            routine = Routine(**routine_data)
+            await CalendarService.update_cluster_calendar_with_routine(cluster, routine)
+            await CalendarService.update_group_calendar_with_routine(group, routine)
+
             return Routine(**routine_data)
         except Exception as e:
             logger.error(f"Error creating routine: {str(e)}")

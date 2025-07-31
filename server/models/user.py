@@ -14,6 +14,7 @@ class User(BaseModel):
     phone: Optional[str] = Field(default=None)
     password: str = Field()  # hashed in practice
     tags: List[str] = Field(default_factory=list)
+    calendar: Optional[str]=Field(default_factory="")
     clusters: List[str] = Field(default_factory=list)  # list of cluster IDs
     groups: List[str] = Field(default_factory=list)  # list of group IDs
     roles: List[str] = Field(default_factory=list)  # list of role IDs

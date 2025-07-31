@@ -18,9 +18,10 @@ class Cluster(BaseModel):
     admin: str = Field()  # user ID
     moderators: List[str] = Field(default_factory=list)
     members: List[str] = Field(default_factory=list)
+    calendar: Optional[str]=Field(default_factory="")
     groups: List[Group] = Field(default_factory=list)
     tags: List[str] = Field(default_factory=list)
-    roles: List[Role] = Field(default_factory=list)
-    sparks: List[Spark] = Field(default_factory=list)
-    routines: List[Routine] = Field(default_factory=list)
+    roles: List[str] = Field(default_factory=list)
+    sparks: List[str] = Field(default_factory=list)
+    routines: List[str] = Field(default_factory=list)
     created_at: str = Field(default_factory=iso_now)

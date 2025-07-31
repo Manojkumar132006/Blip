@@ -52,6 +52,21 @@ class SparkController:
             spark_data["status"] = "scheduled"
             result = await sparks_collection.insert_one(spark_data)
             spark_data["_id"] = str(result.inserted_id)
+
+            # Fetch the cluster and group associated with the spark
+            # Assuming spark_data contains cluster_id and group_id
+            from controllers.cluster import ClusterController
+            from controllers.group import GroupController
+            cluster = await ClusterController.get_cluster(spark_data["cluster"])
+            group = await GroupController.get_group(spark_data["group"])
+
+            # Generate updated calendar data
+            from services.calendar import CalendarService
+            # Generate spark calendar event and update calendars using CalendarService
+            spark = Spark(**spark_data)
+            await CalendarService.update_cluster_calendar_with_spark(cluster, spark)
+            await CalendarService.update_group_calendar_with_spark(group, spark)
+
             # Sync
             await SyncService.push_local_changes()
             return Spark(**spark_data)
@@ -76,6 +91,44 @@ class SparkController:
                 return None
             updated = await sparks_collection.find_one({"_id": ObjectId(spark_id)})
             updated["_id"] = str(updated["_id"])
+
+            # If the members list has been updated, update the user calendars
+            if "members" in spark_data:
+                # Fetch the cluster and group associated with the spark
+                # Assuming spark_data contains cluster_id and group_id
+                from controllers.cluster import ClusterController
+                from controllers.group import GroupController
+                cluster = await ClusterController.get_cluster(updated["cluster"])
+                group = await GroupController.get_group(updated["group"])
+
+                # Generate updated calendar data
+                from services.calendar import CalendarService
+                cluster_calendar = CalendarService.cluster_to_ics(cluster)
+                group_calendar = CalendarService.group_to_ics(group)
+
+                # Update the calendar attributes
+                from config.database import clusters as clusters_collection
+                from config.database import groups as groups_collection
+                from bson import ObjectId
+                await clusters_collection.update_one(
+                    {"_id": ObjectId(cluster._id)},
+                    {"$set": {"calendar": cluster_calendar}}
+                )
+                await groups_collection.update_one(
+                    {"_id": ObjectId(group._id)},
+                    {"$set": {"calendar": group_calendar}}
+                )
+
+                # Update user calendars
+                from controllers.user import UserController
+                spark = Spark(**updated)
+                # Update user calendars
+                from controllers.user import UserController
+                for user_id in spark_data["members"]:
+                    user = await UserController.get_current_user_profile(user_id)
+                    if user:
+                        await CalendarService.update_user_calendar_with_spark(user, spark)
+
             return Spark(**updated)
         except Exception as e:
             logger.error(f"Error updating spark: {str(e)}")
