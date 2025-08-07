@@ -2,6 +2,7 @@
 JWT Authentication Utilities
 """
 import jwt
+import os
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, Request
 from pydantic import BaseModel

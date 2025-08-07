@@ -6,6 +6,7 @@ Returns dynamic UI JSON based on client context:
 - Location (campus, country)
 - Time (morning/evening, events)
 """
+from datetime import timedelta
 from fastapi import APIRouter, Request, HTTPException
 from datetime import datetime
 from typing import Dict, Any
