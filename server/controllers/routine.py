@@ -1,3 +1,4 @@
+```
 """
 Routine Controller - Enhanced with recurrence and state
 """
@@ -28,11 +29,8 @@ class RoutineController:
     @staticmethod
     async def get_routine(routine_id: str) -> Optional[Routine]:
         try:
-            routine = await routines_collection.find_one({"_id": ObjectId(routine_id)})
-            if not routine:
-                return None
-            routine["_id"] = str(routine["_id"])
-            return Routine(**routine)
+            routine = await Routine.get(routine_id)
+            return routine
         except Exception as e:
             logger.error(f"Error fetching routine: {str(e)}")
             raise Exception(f"Database error: {str(e)}")
@@ -42,8 +40,8 @@ class RoutineController:
         try:
             routine_data.pop('_id', None)
             routine_data["status"] = "active"
-            result = await routines_collection.insert_one(routine_data)
-            routine_data["_id"] = str(result.inserted_id)
+            routine = Routine(**routine_data)
+            await routine.save()
 
             # Fetch the cluster and group associated with the routine
             # Assuming routine_data contains cluster_id and group_id
@@ -68,16 +66,16 @@ class RoutineController:
     @staticmethod
     async def update_routine(routine_id: str, routine_data: dict) -> Optional[Routine]:
         try:
-            routine_data.pop('_id', None)
-            result = await routines_collection.update_one(
-                {"_id": ObjectId(routine_id)},
-                {"$set": routine_data}
-            )
-            if result.matched_count == 0:
+            routine = await Routine.get(routine_id)
+            if not routine:
                 return None
-            updated = await routines_collection.find_one({"_id": ObjectId(routine_id)})
-            updated["_id"] = str(updated["_id"])
-            return Routine(**updated)
+
+            # Update the routine object with the new data
+            for key, value in routine_data.items():
+                setattr(routine, key, value)
+
+            await routine.update()
+            return routine
         except Exception as e:
             logger.error(f"Error updating routine: {str(e)}")
             raise Exception(f"Failed to update routine: {str(e)}")
@@ -85,8 +83,13 @@ class RoutineController:
     @staticmethod
     async def delete_routine(routine_id: str) -> bool:
         try:
-            result = await routines_collection.delete_one({"_id": ObjectId(routine_id)})
-            return result.deleted_count > 0
+            routine = await Routine.get(routine_id)
+            if not routine:
+                return False
+            deleted_count = await routine.delete()
+            return deleted_count > 0
         except Exception as e:
             logger.error(f"Error deleting routine: {str(e)}")
             raise Exception(f"Failed to delete routine: {str(e)}")
+
+```

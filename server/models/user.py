@@ -1,3 +1,4 @@
+```
 """
 User Model
 """
@@ -21,3 +22,34 @@ class User(BaseModel):
     sparks: List[str] = Field(default_factory=list)  # list of spark IDs
     routines: List[str] = Field(default_factory=list)  # list of routine IDs
     created_at: str = Field(default_factory=iso_now)
+    id: Optional[str] = Field(default=None)
+
+    async def save(self):
+        from config.database import users as users_collection
+        if self.id:
+            # Update existing document
+            result = await users_collection.update_one({"_id": self.id}, {"$set": self.dict(exclude={"id"})})
+        else:
+            # Insert new document
+            result = await users_collection.insert_one(self.dict(exclude={"id"}))
+            self.id = str(result.inserted_id)
+        return self
+
+    @classmethod
+    async def get(cls, id: str):
+        from config.database import users as users_collection
+        user = await users_collection.find_one({"_id": id})
+        if user:
+            return cls(**user)
+        return None
+
+    async def update(self):
+        from config.database import users as users_collection
+        result = await users_collection.update_one({"_id": self.id}, {"$set": self.dict(exclude={"id"})})
+        return self
+
+    async def delete(self):
+        from config.database import users as users_collection
+        result = await users_collection.delete_one({"_id": self.id})
+        return result.deleted_count
+
