@@ -6,7 +6,6 @@ from models.spark import Spark
 from config.database import sparks as sparks_collection
 from bson import ObjectId
 import logging
-from services.sync import SyncService
 from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
