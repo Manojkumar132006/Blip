@@ -1,4 +1,3 @@
-```
 """
 Role Model
 """
@@ -45,4 +44,3 @@ class Role(BaseModel):
         from config.database import roles as roles_collection
         result = await roles_collection.delete_one({"_id": self.id})
         return result.deleted_count
-

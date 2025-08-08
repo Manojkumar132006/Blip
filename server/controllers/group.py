@@ -1,4 +1,3 @@
-```
 """
 Group Controller - Handles all business logic for Group model
 """
@@ -78,5 +77,3 @@ class GroupController:
         except Exception as e:
             logger.error(f"Error deleting group: {str(e)}")
             raise Exception(f"Failed to delete group: {str(e)}")
-
-```

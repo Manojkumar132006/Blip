@@ -1,4 +1,3 @@
-```
 """
 Routine Controller - Enhanced with recurrence and state
 """
@@ -91,5 +90,3 @@ class RoutineController:
         except Exception as e:
             logger.error(f"Error deleting routine: {str(e)}")
             raise Exception(f"Failed to delete routine: {str(e)}")
-
-```

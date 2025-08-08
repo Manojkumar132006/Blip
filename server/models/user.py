@@ -1,4 +1,3 @@
-```
 """
 User Model
 """
@@ -52,4 +51,3 @@ class User(BaseModel):
         from config.database import users as users_collection
         result = await users_collection.delete_one({"_id": self.id})
         return result.deleted_count
-

@@ -1,4 +1,3 @@
-```
 """
 Cluster Controller - Handles all business logic for Cluster model
 """
@@ -78,5 +77,3 @@ class ClusterController:
         except Exception as e:
             logger.error(f"Error deleting cluster: {str(e)}")
             raise Exception(f"Failed to delete cluster: {str(e)}")
-
-```

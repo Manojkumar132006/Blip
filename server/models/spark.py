@@ -1,4 +1,3 @@
-```
 """
 Spark Model
 """
@@ -53,4 +52,3 @@ class Spark(BaseModel):
         from config.database import sparks as sparks_collection
         result = await sparks_collection.delete_one({"_id": self.id})
         return result.deleted_count
-

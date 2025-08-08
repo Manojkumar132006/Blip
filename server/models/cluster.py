@@ -1,4 +1,3 @@
-```
 """
 Cluster Model (College/Workplace)
 """
@@ -56,4 +55,3 @@ class Cluster(BaseModel):
         from config.database import clusters as clusters_collection
         result = await clusters_collection.delete_one({"_id": self.id})
         return result.deleted_count
-

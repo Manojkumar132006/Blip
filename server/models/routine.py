@@ -1,4 +1,3 @@
-```
 """
 Routine Model
 """
@@ -49,4 +48,3 @@ class Routine(BaseModel):
         from config.database import routines as routines_collection
         result = await routines_collection.delete_one({"_id": self.id})
         return result.deleted_count
-

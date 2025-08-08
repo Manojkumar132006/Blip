@@ -1,4 +1,3 @@
-```
 """
 User Controller - Handles all business logic for User model
 """
@@ -78,5 +77,3 @@ class UserController:
         except Exception as e:
             logger.error(f"Error deleting user: {str(e)}")
             raise Exception(f"Failed to delete user: {str(e)}")
-
-```

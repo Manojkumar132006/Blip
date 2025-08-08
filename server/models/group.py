@@ -1,4 +1,3 @@
-```
 """
 Group Model
 """

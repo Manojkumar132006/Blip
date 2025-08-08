@@ -1,4 +1,3 @@
-```
 """
 Spark Controller - Enhanced with state, triggers, and sync
 """
@@ -152,5 +151,3 @@ class SparkController:
         except Exception as e:
             logger.error(f"Error deleting spark: {str(e)}")
             raise Exception(f"Failed to delete spark: {str(e)}")
-
-```
