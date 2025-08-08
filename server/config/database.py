@@ -8,7 +8,7 @@ import os
 load_dotenv()
 
 client = MongoClient(os.getenv("MONGODB_URI"))
-db = client.blip
+db = client['db0']
 
 # Collections
 users = db.users

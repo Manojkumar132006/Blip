@@ -15,7 +15,7 @@ class GroupController:
         """List all groups"""
         try:
             cursor = groups_collection.find()
-            groups = await cursor.to_list(length=100)
+            groups = cursor.limit(100)
             # Convert ObjectId to string for JSON serialization
             for group in groups:
                 group["_id"] = str(group["_id"])

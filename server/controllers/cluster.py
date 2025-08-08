@@ -15,7 +15,7 @@ class ClusterController:
         """List all clusters"""
         try:
             cursor = clusters_collection.find()
-            clusters = await cursor.to_list(length=100)
+            clusters = cursor.limit(100)
             # Convert ObjectId to string for JSON serialization
             for cluster in clusters:
                 cluster["_id"] = str(cluster["_id"])

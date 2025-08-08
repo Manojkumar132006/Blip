@@ -17,7 +17,7 @@ class RoutineController:
     async def list_routines() -> List[Routine]:
         try:
             cursor = routines_collection.find()
-            routines = await cursor.to_list(length=100)
+            routines = cursor.limit(100)
             for routine in routines:
                 routine["_id"] = str(routine["_id"])
             return [Routine(**routine) for routine in routines]
