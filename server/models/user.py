@@ -2,6 +2,7 @@
 User Model
 """
 from pydantic import BaseModel, Field
+from bson import ObjectId
 from typing import List, Optional
 import datetime
 
@@ -31,13 +32,13 @@ class User(BaseModel):
         else:
             # Insert new document
             result = await users_collection.insert_one(self.dict(exclude={"id"}))
-            self.id = str(result.inserted_id)
+            self.id = result.inserted_id
         return self
 
     @classmethod
     async def get(cls, id: str):
         from config.database import users as users_collection
-        user = await users_collection.find_one({"_id": id})
+        user = await users_collection.find_one({"_id": ObjectId(id)})
         if user:
             return cls(**user)
         return None

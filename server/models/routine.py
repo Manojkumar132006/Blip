@@ -2,6 +2,7 @@
 Routine Model
 """
 import datetime
+from bson import ObjectId
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
@@ -28,13 +29,13 @@ class Routine(BaseModel):
         else:
             # Insert new document
             result = await routines_collection.insert_one(self.dict(exclude={"id"}))
-            self.id = str(result.inserted_id)
+            self.id = result.inserted_id
         return self
 
     @classmethod
     async def get(cls, id: str):
         from config.database import routines as routines_collection
-        routine = await routines_collection.find_one({"_id": id})
+        routine = await routines_collection.find_one({"_id": ObjectId(id)})
         if routine:
             return cls(**routine)
         return None

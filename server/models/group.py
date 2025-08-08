@@ -3,6 +3,7 @@ Group Model
 """
 import datetime
 from pydantic import BaseModel, Field
+from bson import ObjectId
 from typing import List, Optional
 
 def iso_now():
@@ -31,13 +32,13 @@ class Group(BaseModel):
         else:
             # Insert new document
             result = await groups_collection.insert_one(self.dict(exclude={"id"}))
-            self.id = str(result.inserted_id)
+            self.id = result.inserted_id
         return self
 
     @classmethod
     async def get(cls, id: str):
         from config.database import groups as groups_collection
-        group = await groups_collection.find_one({"_id": id})
+        group = await groups_collection.find_one({"_id": ObjectId(id)})
         if group:
             return cls(**group)
         return None

@@ -3,6 +3,7 @@ Cluster Model (College/Workplace)
 """
 import datetime
 from pydantic import BaseModel, Field
+from bson import ObjectId
 from typing import List, Optional
 from .group import Group
 from .role import Role
@@ -35,13 +36,13 @@ class Cluster(BaseModel):
         else:
             # Insert new document
             result = await clusters_collection.insert_one(self.dict(exclude={"id"}))
-            self.id = str(result.inserted_id)
+            self.id = result.inserted_id
         return self
 
     @classmethod
     async def get(cls, id: str):
         from config.database import clusters as clusters_collection
-        cluster = await clusters_collection.find_one({"_id": id})
+        cluster = await clusters_collection.find_one({"_id": ObjectId(id)})
         if cluster:
             return cls(**cluster)
         return None

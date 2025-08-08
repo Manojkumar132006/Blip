@@ -2,6 +2,7 @@
 Role Model
 """
 import datetime
+from bson import ObjectId
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
@@ -24,13 +25,13 @@ class Role(BaseModel):
         else:
             # Insert new document
             result = await roles_collection.insert_one(self.dict(exclude={"id"}))
-            self.id = str(result.inserted_id)
+            self.id = result.inserted_id
         return self
 
     @classmethod
     async def get(cls, id: str):
         from config.database import roles as roles_collection
-        role = await roles_collection.find_one({"_id": id})
+        role = await roles_collection.find_one({"_id": ObjectId(id)})
         if role:
             return cls(**role)
         return None
