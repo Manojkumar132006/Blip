@@ -9,6 +9,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class UserController:
     @staticmethod
     async def get_current_user_profile(user_id: str) -> Optional[User]:
@@ -30,6 +31,7 @@ class UserController:
         try:
             cursor = users_collection.find()
             users = cursor.limit(100)
+            users = list(users)
             # Convert ObjectId to string for JSON serialization
             for user in users:
                 user["_id"] = str(user["_id"])
@@ -62,7 +64,7 @@ class UserController:
             )
             if result.matched_count == 0:
                 return None
-            
+
             updated_user = await users_collection.find_one({"_id": ObjectId(user_id)})
             updated_user["_id"] = str(updated_user["_id"])
             return User(**updated_user)

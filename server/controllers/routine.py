@@ -9,6 +9,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class RoutineController:
     STATES = ["active", "paused", "completed", "overdue", "cancelled"]
     STEP_STATES = ["pending", "in_progress", "completed", "skipped", "failed"]
@@ -18,6 +19,7 @@ class RoutineController:
         try:
             cursor = routines_collection.find()
             routines = cursor.limit(100)
+            routines = list(routines)
             for routine in routines:
                 routine["_id"] = str(routine["_id"])
             return [Routine(**routine) for routine in routines]
