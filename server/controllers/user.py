@@ -15,12 +15,8 @@ class UserController:
     async def get_current_user_profile(user_id: str) -> Optional[User]:
         """Get current user profile by ID"""
         try:
-            user = await users_collection.find_one({"_id": ObjectId(user_id)})
-            if not user:
-                return None
-            # Convert ObjectId to string for JSON serialization
-            user["_id"] = str(user["_id"])
-            return User(**user)
+            user = await User.get(user_id)
+            return user
         except Exception as e:
             logger.error(f"Error fetching user profile: {str(e)}")
             raise Exception(f"Database error: {str(e)}")
@@ -46,9 +42,9 @@ class UserController:
         try:
             # Remove _id if present in input
             user_data.pop('_id', None)
-            result = await users_collection.insert_one(user_data)
-            user_data["_id"] = str(result.inserted_id)
-            return User(**user_data)
+            user = User(**user_data)
+            await user.save()
+            return user
         except Exception as e:
             logger.error(f"Error creating user: {str(e)}")
             raise Exception(f"Failed to create user: {str(e)}")
@@ -57,17 +53,17 @@ class UserController:
     async def update_user(user_id: str, user_data: dict) -> Optional[User]:
         """Update an existing user"""
         try:
-            user_data.pop('_id', None)  # Ensure _id is not updated
-            result = await users_collection.update_one(
-                {"_id": ObjectId(user_id)},
-                {"$set": user_data}
-            )
-            if result.matched_count == 0:
+            user = await User.get(user_id)
+            if not user:
                 return None
+              
+            # Update the user object with the new data
+            for key, value in user_data.items():
+                setattr(user, key, value)
 
-            updated_user = await users_collection.find_one({"_id": ObjectId(user_id)})
-            updated_user["_id"] = str(updated_user["_id"])
-            return User(**updated_user)
+            await user.update()
+            return user
+
         except Exception as e:
             logger.error(f"Error updating user: {str(e)}")
             raise Exception(f"Failed to update user: {str(e)}")
@@ -76,8 +72,11 @@ class UserController:
     async def delete_user(user_id: str) -> bool:
         """Delete a user"""
         try:
-            result = await users_collection.delete_one({"_id": ObjectId(user_id)})
-            return result.deleted_count > 0
+            user = await User.get(user_id)
+            if not user:
+                return False
+            deleted_count = await user.delete()
+            return deleted_count > 0
         except Exception as e:
             logger.error(f"Error deleting user: {str(e)}")
             raise Exception(f"Failed to delete user: {str(e)}")

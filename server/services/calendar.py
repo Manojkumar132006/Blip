@@ -6,13 +6,14 @@ import ics
 
 class CalendarService:
     @staticmethod
-    def spark_to_ics(spark) -> str:
+    def spark_to_ics(spark, calendar: ics.Calendar = None) -> str:
         event = ics.Event()
         event.name = spark.name
         event.begin = spark.start_time
         event.end = spark.end_time
         event.description = spark.description or ""
-        calendar = ics.Calendar()
+        if calendar is None:
+            calendar = ics.Calendar()
         calendar.events.add(event)
         return str(calendar)
 
@@ -99,7 +100,36 @@ class CalendarService:
         )
 
     @staticmethod
-    def routine_to_ics(routine) -> str:
+    # def has_spark_conflict(user_calendar: str, spark) -> bool:
+    #     import ics
+    #     from datetime import datetime, timezone
+    #     if not user_calendar:
+    #         return False
+
+    #     calendar = ics.Calendar(user_calendar)
+    #     for event in calendar.events:
+    #         # Convert event begin and end to UTC aware datetime objects
+    #         if isinstance(event.begin, datetime) and event.begin.tzinfo is None:
+    #             event_begin = event.begin.replace(tzinfo=timezone.utc)
+    #         else:
+    #             event_begin = event.begin
+                
+    #         if isinstance(event.end, datetime) and event.end.tzinfo is None:
+    #             event_end = event.end.replace(tzinfo=timezone.utc)
+    #         else:
+    #             event_end = event.end
+            
+    #         spark_start = spark.start_time
+    #         spark_end = spark.end_time
+
+    #         # Compare the datetimes directly
+    #         if spark_start < event_end and spark_end > event_begin:
+    #             return True
+
+    #     return False
+
+    @staticmethod
+    def routine_to_ics(routine, calendar: ics.Calendar = None) -> str:
         # Create recurring event
         event = ics.Event()
         event.name = routine.name
@@ -109,6 +139,7 @@ class CalendarService:
         event.make_all_day()
         # Add recurrence rule (simplified)
         event.rrule = f"FREQ=DAILY;UNTIL=20260101T000000"
-        calendar = ics.Calendar()
+        if calendar is None:
+            calendar = ics.Calendar()
         calendar.events.add(event)
         return str(calendar)

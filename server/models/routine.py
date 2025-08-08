@@ -2,6 +2,7 @@
 Routine Model
 """
 import datetime
+from bson import ObjectId
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
@@ -18,3 +19,33 @@ class Routine(BaseModel):
     cluster: str = Field()  # cluster ID
     group: Optional[str] = Field(default=None)  # group ID
     created_at: str = Field(default_factory=iso_now)
+    id: Optional[str] = Field(default=None)
+
+    async def save(self):
+        from config.database import routines as routines_collection
+        if self.id:
+            # Update existing document
+            result = await routines_collection.update_one({"_id": self.id}, {"$set": self.dict(exclude={"id"})})
+        else:
+            # Insert new document
+            result = await routines_collection.insert_one(self.dict(exclude={"id"}))
+            self.id = result.inserted_id
+        return self
+
+    @classmethod
+    async def get(cls, id: str):
+        from config.database import routines as routines_collection
+        routine = await routines_collection.find_one({"_id": ObjectId(id)})
+        if routine:
+            return cls(**routine)
+        return None
+
+    async def update(self):
+        from config.database import routines as routines_collection
+        result = await routines_collection.update_one({"_id": self.id}, {"$set": self.dict(exclude={"id"})})
+        return self
+
+    async def delete(self):
+        from config.database import routines as routines_collection
+        result = await routines_collection.delete_one({"_id": self.id})
+        return result.deleted_count

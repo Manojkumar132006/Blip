@@ -32,11 +32,8 @@ class ClusterController:
     async def get_cluster(cluster_id: str) -> Optional[Cluster]:
         """Get a specific cluster by ID"""
         try:
-            cluster = await clusters_collection.find_one({"_id": ObjectId(cluster_id)})
-            if not cluster:
-                return None
-            cluster["_id"] = str(cluster["_id"])
-            return Cluster(**cluster)
+            cluster = await Cluster.get(cluster_id)
+            return cluster
         except Exception as e:
             logger.error(f"Error fetching cluster: {str(e)}")
             raise Exception(f"Database error: {str(e)}")
@@ -47,9 +44,9 @@ class ClusterController:
         try:
             # Remove _id if present in input
             cluster_data.pop('_id', None)
-            result = await clusters_collection.insert_one(cluster_data)
-            cluster_data["_id"] = str(result.inserted_id)
-            return Cluster(**cluster_data)
+            cluster = Cluster(**cluster_data)
+            await cluster.save()
+            return cluster
         except Exception as e:
             logger.error(f"Error creating cluster: {str(e)}")
             raise Exception(f"Failed to create cluster: {str(e)}")
@@ -58,17 +55,17 @@ class ClusterController:
     async def update_cluster(cluster_id: str, cluster_data: dict) -> Optional[Cluster]:
         """Update an existing cluster"""
         try:
-            cluster_data.pop('_id', None)  # Ensure _id is not updated
-            result = await clusters_collection.update_one(
-                {"_id": ObjectId(cluster_id)},
-                {"$set": cluster_data}
-            )
-            if result.matched_count == 0:
+            cluster = await Cluster.get(cluster_id)
+            if not cluster:
                 return None
 
-            updated_cluster = await clusters_collection.find_one({"_id": ObjectId(cluster_id)})
-            updated_cluster["_id"] = str(updated_cluster["_id"])
-            return Cluster(**updated_cluster)
+            # Update the cluster object with the new data
+            for key, value in cluster_data.items():
+                setattr(cluster, key, value)
+
+            await cluster.update()
+            return cluster
+
         except Exception as e:
             logger.error(f"Error updating cluster: {str(e)}")
             raise Exception(f"Failed to update cluster: {str(e)}")
@@ -77,8 +74,11 @@ class ClusterController:
     async def delete_cluster(cluster_id: str) -> bool:
         """Delete a cluster"""
         try:
-            result = await clusters_collection.delete_one({"_id": ObjectId(cluster_id)})
-            return result.deleted_count > 0
+            cluster = await Cluster.get(cluster_id)
+            if not cluster:
+                return False
+            deleted_count = await cluster.delete()
+            return deleted_count > 0
         except Exception as e:
             logger.error(f"Error deleting cluster: {str(e)}")
             raise Exception(f"Failed to delete cluster: {str(e)}")
