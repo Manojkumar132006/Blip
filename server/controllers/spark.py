@@ -17,7 +17,7 @@ class SparkController:
     async def list_sparks() -> List[Spark]:
         try:
             cursor = sparks_collection.find()
-            sparks = await cursor.to_list(length=100)
+            sparks = cursor.limit(100)
             for spark in sparks:
                 spark["id"] = str(spark["_id"])
                 # Auto-expire

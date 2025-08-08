@@ -25,7 +25,7 @@ class UserController:
         """List all users"""
         try:
             cursor = users_collection.find()
-            users = await cursor.to_list(length=100)
+            users = cursor.limit(100)
             # Convert ObjectId to string for JSON serialization
             for user in users:
                 user["_id"] = str(user["_id"])
