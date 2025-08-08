@@ -8,12 +8,15 @@ from typing import List
 
 router = APIRouter()
 
+
 @router.get("/", response_model=List[Spark])
 async def list_sparks():
     try:
         return await SparkController.list_sparks()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Database error: {str(e)}")
+
 
 @router.get("/{spark_id}", response_model=Spark)
 async def get_spark(spark_id: str):
@@ -23,7 +26,9 @@ async def get_spark(spark_id: str):
             raise HTTPException(status_code=404, detail="Spark not found")
         return spark
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Database error: {str(e)}")
+
 
 @router.post("/", response_model=Spark)
 async def create_spark(request: Request):
@@ -32,7 +37,9 @@ async def create_spark(request: Request):
         spark_data = await request.json()
         return await SparkController.create_spark(spark_data)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Database error: {str(e)}")
+
 
 @router.put("/{spark_id}", response_model=Spark)
 async def update_spark(spark_id: str, request: Request):
@@ -44,7 +51,9 @@ async def update_spark(spark_id: str, request: Request):
             raise HTTPException(status_code=404, detail="Spark not found")
         return updated_spark
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Database error: {str(e)}")
+
 
 @router.delete("/{spark_id}")
 async def delete_spark(spark_id: str):
@@ -55,4 +64,18 @@ async def delete_spark(spark_id: str):
             raise HTTPException(status_code=404, detail="Spark not found")
         return {"detail": "Spark deleted successfully"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Database error: {str(e)}")
+
+
+@router.get("/{spark_id}/qr")
+def qr_for_spark(spark_id: str):
+    return SparkController.get_qr_for_spark(spark_id)
+
+
+@router.post("/check-in")
+async def checkin_user(request: Request):
+    return await SparkController.mark_user_attended(
+        spark_id=request.spark_id,
+        user_id=request.user_id
+    )
