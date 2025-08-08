@@ -9,16 +9,20 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class ClusterController:
     @staticmethod
     async def list_clusters() -> List[Cluster]:
         """List all clusters"""
         try:
+            print("📦 Fetching clusters from DB...")
             cursor = clusters_collection.find()
             clusters = cursor.limit(100)
+            clusters = list(clusters)
             # Convert ObjectId to string for JSON serialization
             for cluster in clusters:
                 cluster["_id"] = str(cluster["_id"])
+            print(f"📊 Found {len(clusters)} clusters.")
             return [Cluster(**cluster) for cluster in clusters]
         except Exception as e:
             logger.error(f"Error listing clusters: {str(e)}")
@@ -61,6 +65,7 @@ class ClusterController:
 
             await cluster.update()
             return cluster
+
         except Exception as e:
             logger.error(f"Error updating cluster: {str(e)}")
             raise Exception(f"Failed to update cluster: {str(e)}")

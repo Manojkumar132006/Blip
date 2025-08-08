@@ -9,6 +9,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class UserController:
     @staticmethod
     async def get_current_user_profile(user_id: str) -> Optional[User]:
@@ -26,6 +27,7 @@ class UserController:
         try:
             cursor = users_collection.find()
             users = cursor.limit(100)
+            users = list(users)
             # Convert ObjectId to string for JSON serialization
             for user in users:
                 user["_id"] = str(user["_id"])
@@ -54,13 +56,14 @@ class UserController:
             user = await User.get(user_id)
             if not user:
                 return None
-
+              
             # Update the user object with the new data
             for key, value in user_data.items():
                 setattr(user, key, value)
 
             await user.update()
             return user
+
         except Exception as e:
             logger.error(f"Error updating user: {str(e)}")
             raise Exception(f"Failed to update user: {str(e)}")

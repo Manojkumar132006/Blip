@@ -6,8 +6,10 @@ from bson import ObjectId
 from typing import List, Optional
 import datetime
 
+
 def iso_now():
     return datetime.datetime.now().isoformat()
+
 
 class User(BaseModel):
     name: str = Field()
@@ -15,7 +17,7 @@ class User(BaseModel):
     phone: Optional[str] = Field(default=None)
     password: str = Field()  # hashed in practice
     tags: List[str] = Field(default_factory=list)
-    calendar: Optional[str]=Field(default_factory="")
+    calendar: Optional[str] = Field(default_factory=str)
     clusters: List[str] = Field(default_factory=list)  # list of cluster IDs
     groups: List[str] = Field(default_factory=list)  # list of group IDs
     roles: List[str] = Field(default_factory=list)  # list of role IDs

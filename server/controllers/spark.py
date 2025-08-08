@@ -10,14 +10,17 @@ from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
+
 class SparkController:
-    STATES = ["created", "scheduled", "active", "expired", "completed", "cancelled"]
+    STATES = ["created", "scheduled", "active",
+              "expired", "completed", "cancelled"]
 
     @staticmethod
     async def list_sparks() -> List[Spark]:
         try:
             cursor = sparks_collection.find()
             sparks = cursor.limit(100)
+            sparks = list(sparks)
             for spark in sparks:
                 spark["id"] = str(spark["_id"])
                 # Auto-expire

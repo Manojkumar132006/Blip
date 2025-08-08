@@ -9,6 +9,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class GroupController:
     @staticmethod
     async def list_groups() -> List[Group]:
@@ -16,6 +17,7 @@ class GroupController:
         try:
             cursor = groups_collection.find()
             groups = cursor.limit(100)
+            groups = list(groups)
             # Convert ObjectId to string for JSON serialization
             for group in groups:
                 group["_id"] = str(group["_id"])
@@ -61,6 +63,7 @@ class GroupController:
 
             await group.update()
             return group
+
         except Exception as e:
             logger.error(f"Error updating group: {str(e)}")
             raise Exception(f"Failed to update group: {str(e)}")

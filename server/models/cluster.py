@@ -10,8 +10,10 @@ from .role import Role
 from .routine import Routine
 from .spark import Spark
 
+
 def iso_now():
     return datetime.datetime.now().isoformat()
+
 
 class Cluster(BaseModel):
     name: str = Field()
@@ -19,7 +21,7 @@ class Cluster(BaseModel):
     admin: str = Field()  # user ID
     moderators: List[str] = Field(default_factory=list)
     members: List[str] = Field(default_factory=list)
-    calendar: Optional[str]=Field(default_factory="")
+    calendar: Optional[str] = Field(default_factory=str)
     groups: List[Group] = Field(default_factory=list)
     tags: List[str] = Field(default_factory=list)
     roles: List[str] = Field(default_factory=list)
