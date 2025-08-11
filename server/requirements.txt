@@ -7,3 +7,4 @@ pyjwt>=2.8.0
 python-multipart>=0.0.6
 pytz>=2024.1
 ics>=0.7.2
+qrcode
