@@ -39,6 +39,7 @@ jobs:
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}  # Store your MongoDB connection string as a secret
           UI_DATABASE_NAME: ${{ secrets.UI_DATABASE_NAME }}
+          GITHUB_OUTPUT_FILES: ${{ steps.changed_files.outputs.files }}
         run: |
           python <<EOF
           import os
