@@ -37,6 +37,7 @@ jobs:
       - name: Update MongoDB (Dry Run)
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}  # Store your MongoDB connection string as a secret
+          UI_DATABASE_NAME: ${{ secrets.UI_DATABASE_NAME }}
         run: |
           python <<EOF
           import os
@@ -45,52 +46,57 @@ jobs:
           from pymongo import MongoClient
 
           MONGO_URI = os.environ["MONGO_URI"]
-          DATABASE_NAME = "ui"  # Assuming your database is named "ui"
-          client = MongoClient(MONGO_URI)
-          db = client[DATABASE_NAME]
+          if not MONGO_URI:
+            print("Error: MONGO_URI environment variable is not set. Please configure the MONGO_URI secret in your GitHub repository.")
+            exit(1)
+
+          DATABASE_NAME = os.environ["UI_DATABASE_NAME"]  # Assuming your database is named "ui"
+          try:
+            client = MongoClient(MONGO_URI)
+            db = client[DATABASE_NAME]
+          except Exception as e:
+            print(f"Error connecting to MongoDB: {e}")
+            exit(1)
 
           changed_files = os.environ["GITHUB_OUTPUT_FILES"].splitlines()
 
           print("Running in dry-run mode (no actual MongoDB updates)")
 
           for file_path in changed_files:
-            if os.path.isdir(file_path):
-              # Create a new collection if a directory is created
-              collection_name = os.path.basename(file_path)
-              if collection_name not in db.list_collection_names():
-                print(f"Would create collection: {collection_name}")
-
-            elif file_path.endswith(".json"):
-              # Handle JSON files
-              directory = os.path.dirname(file_path)
-              collection_name = os.path.basename(directory)
-              file_name = os.path.basename(file_path)
-
-              # Extract header information from filename
-              match = re.match(r"patch-v(?P<version>\d+)-location-(?P<location>\w+)-time-(?P<time>\d+)-date-(?P<date>\d+)\.json", file_name)
-              if match:
-                  headers = match.groupdict()
-              else:
-                  print(f"Skipping {file_path}: Invalid filename format")
-                  continue
-
-              try:
-                with open(file_path, "r") as f:
-                  json_data = json.load(f)
-              except Exception as e:
-                print(f"Error reading JSON file {file_path}: {e}")
+            if not file_path.endswith(".json"):
+                print(f"Skipping {file_path}: Only JSON files are processed.")
                 continue
 
-              collection = db[collection_name]
+            # Handle JSON files
+            directory = os.path.dirname(file_path)
+            collection_name = os.path.basename(directory)
+            file_name = os.path.basename(file_path)
 
-              # Check if the document already exists
-              existing_document = collection.find_one(headers)
-              if existing_document:
-                # Update the existing document
-                print(f"Would update document in {collection_name}: {headers}")
-              else:
-                # Create a new document
-                print(f"Would create document in {collection_name}: {headers}")
+            # Extract header information from filename
+            match = re.match(r"patch-v(?P<version>\d+)-location-(?P<location>\w+)-time-(?P<time>\d+)-date-(?P<date>\d+)\.json", file_name)
+            if match:
+                headers = match.groupdict()
+            else:
+                print(f"Skipping {file_path}: Invalid filename format")
+                continue
+
+            try:
+              with open(file_path, "r") as f:
+                json_data = json.load(f)
+            except Exception as e:
+              print(f"Error reading JSON file {file_path}: {e}")
+              continue
+
+            collection = db[collection_name]
+
+            # Check if the document already exists
+            existing_document = collection.find_one(headers)
+            if existing_document:
+              # Update the existing document
+              print(f"Would update document in {collection_name}: {headers}")
+            else:
+              # Create a new document
+              print(f"Would create document in {collection_name}: {headers}")
 
           client.close()
           EOF
