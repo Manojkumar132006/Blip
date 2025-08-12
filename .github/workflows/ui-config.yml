@@ -36,16 +36,16 @@ jobs:
 
       - name: Update MongoDB (Dry Run)
         env:
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-          UI_DATABASE_NAME: ${{ secrets.UI_DATABASE_NAME }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}  # Store your MongoDB connection string as a secret
         run: |
+          python <<EOF
           import os
           import json
           import re
           from pymongo import MongoClient
 
           MONGO_URI = os.environ["MONGO_URI"]
-          DATABASE_NAME = os.environ["UI_DATABASE_NAME"] or "ui"  # Assuming your database is named "ui"
+          DATABASE_NAME = "ui"  # Assuming your database is named "ui"
           client = MongoClient(MONGO_URI)
           db = client[DATABASE_NAME]
 
@@ -93,3 +93,4 @@ jobs:
                 print(f"Would create document in {collection_name}: {headers}")
 
           client.close()
+          EOF
